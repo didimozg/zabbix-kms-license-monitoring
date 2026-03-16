@@ -61,12 +61,16 @@ zabbix_export:
               trends: 36d
               params: '(last(//kms.license.minutes[{#PRODUCTID}]) / 1440)'
             - uuid: 9a792d9b3b0442898c8ac44f1d26270f
-              name: '{#PRODUCTNAME}: Grace minutes'
+              name: '{#PRODUCTNAME}: Technical: Grace minutes'
               key: 'kms.license.minutes[{#PRODUCTID}]'
               delay: 1h
+              history: '0'
               value_type: FLOAT
-              trends: 36d
-              units: m
+              trends: '0'
+              units: min
+              tags:
+                - tag: visibility
+                  value: hidden
             - uuid: cedf1dd7c6f04dffb5b6175b57fd9cc0
               name: '{#PRODUCTNAME}: License state'
               key: 'kms.license.state[{#PRODUCTID}]'
