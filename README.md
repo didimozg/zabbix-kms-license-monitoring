@@ -243,6 +243,8 @@ license is not activated
 - requires access to the Windows licensing subsystem
 - not supported on Linux hosts
 
+<img width="914" height="676" alt="image" src="https://github.com/user-attachments/assets/abaed7cf-28b2-45f5-93c2-d00ab25d0ca5" />
+
 ---
 
 # License
