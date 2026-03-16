@@ -30,6 +30,7 @@ zabbix_export:
               key: 'kms.license.days[{#PRODUCTID}]'
               delay: 1h
               value_type: FLOAT
+              trends: 36d
               units: d
               trigger_prototypes:
                 - uuid: fd0d23a2c4b7436492894a0d5306a8c8
@@ -48,15 +49,23 @@ zabbix_export:
               name: '{#PRODUCTNAME}: License expiration date'
               type: CALCULATED
               key: 'kms.license.expiration[{#PRODUCTID}]'
+              delay: 1h
+              trends: 36d
               units: unixtime
-              params: 'now() + last(/KMS and Volume Licenses by Zabbix agent 2/kms.license.days[{#PRODUCTID}]) * 86400'
+              params: 'now() + last(//kms.license.minutes[{#PRODUCTID}]) * 60'
+            - uuid: b214d8345e6849e6bff8fb411ce58e64
+              name: '{#PRODUCTNAME}: Days until expiration'
+              type: CALCULATED
+              key: 'kms.license.expire.days[{#PRODUCTID}]'
+              delay: 1h
+              trends: 36d
+              params: '(last(//kms.license.minutes[{#PRODUCTID}]) / 1440)'
             - uuid: 9a792d9b3b0442898c8ac44f1d26270f
               name: '{#PRODUCTNAME}: Grace minutes'
               key: 'kms.license.minutes[{#PRODUCTID}]'
               delay: 1h
               value_type: FLOAT
-              status: DISABLED
-              discover: NO_DISCOVER
+              trends: 36d
               units: m
             - uuid: cedf1dd7c6f04dffb5b6175b57fd9cc0
               name: '{#PRODUCTNAME}: License state'
@@ -69,6 +78,15 @@ zabbix_export:
                   name: '{#PRODUCTNAME}: license is not activated'
                   priority: AVERAGE
           graph_prototypes:
+            - uuid: 2bd928c207ef4124a28f9ebb29197dc7
+              name: '{#PRODUCTNAME}: Activation countdown'
+              yaxismax: '0'
+              graph_items:
+                - color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: 'KMS and Volume Licenses by Zabbix agent 2'
+                    key: 'kms.license.days[{#PRODUCTID}]'
             - uuid: e516552f88c74900b21c4acbec8fb9b4
               name: '{#PRODUCTNAME}: KMS activation remaining'
               yaxismax: '0'
