@@ -245,6 +245,8 @@ license is not activated
 - требует доступа к локальной системе лицензирования Windows
 - не поддерживает Linux
 
+<img width="914" height="676" alt="image" src="https://github.com/user-attachments/assets/97b29bf3-46d7-435b-a46f-9ab141bf4041" />
+
 ---
 
 # Лицензия
