@@ -1,0 +1,104 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: 21307fd56eff482eb158144422cf060c
+      name: Templates
+  templates:
+    - uuid: 23e3273772ed42f09b060432a96b7611
+      template: 'KMS and Volume Licenses by Zabbix agent 2'
+      name: 'KMS and Volume Licenses by Zabbix agent 2'
+      description: |
+        Discovers Windows, Office, Visio and Project licensing objects from the local host,
+        without WMI item checks from Zabbix server.
+        
+        Collection model:
+        - Zabbix agent 2 UserParameter + PowerShell on the monitored host
+        - LLD discovery for licensing products
+        - per-product items for days remaining, state, product name and grace minutes
+        
+        Designed for large environments because all expensive CIM queries are cached locally.
+      groups:
+        - name: Templates
+      discovery_rules:
+        - uuid: 9b235f9bd376430fa6a27044e61603cc
+          name: 'KMS license discovery'
+          key: kms.licenses.discovery
+          delay: 3h
+          item_prototypes:
+            - uuid: 74671778c16f458bb0e867991400a24f
+              name: '{#PRODUCTNAME}: Days until activation expiry'
+              key: 'kms.license.days[{#PRODUCTID}]'
+              delay: 1h
+              value_type: FLOAT
+              units: d
+              trigger_prototypes:
+                - uuid: fd0d23a2c4b7436492894a0d5306a8c8
+                  expression: 'nodata(/KMS and Volume Licenses by Zabbix agent 2/kms.license.days[{#PRODUCTID}],2d)=1'
+                  name: 'Script not work'
+                  priority: INFO
+                - uuid: 24c19ad7284744eab4be934ecd90bf02
+                  expression: 'last(/KMS and Volume Licenses by Zabbix agent 2/kms.license.days[{#PRODUCTID}])<7'
+                  name: '{#PRODUCTNAME}: activation expires in <7 days'
+                  priority: HIGH
+                - uuid: 298afd9faa334aba88b8627afb267e2e
+                  expression: 'last(/KMS and Volume Licenses by Zabbix agent 2/kms.license.days[{#PRODUCTID}])<30'
+                  name: '{#PRODUCTNAME}: activation expires in <30 days'
+                  priority: WARNING
+            - uuid: 2853c2a75fc640f4b415f1fb7a6a0aee
+              name: '{#PRODUCTNAME}: License expiration date'
+              type: CALCULATED
+              key: 'kms.license.expiration[{#PRODUCTID}]'
+              units: unixtime
+              params: 'now() + last(/KMS and Volume Licenses by Zabbix agent 2/kms.license.days[{#PRODUCTID}]) * 86400'
+            - uuid: 9a792d9b3b0442898c8ac44f1d26270f
+              name: '{#PRODUCTNAME}: Grace minutes'
+              key: 'kms.license.minutes[{#PRODUCTID}]'
+              delay: 1h
+              value_type: FLOAT
+              status: DISABLED
+              discover: NO_DISCOVER
+              units: m
+            - uuid: cedf1dd7c6f04dffb5b6175b57fd9cc0
+              name: '{#PRODUCTNAME}: License state'
+              key: 'kms.license.state[{#PRODUCTID}]'
+              delay: 1h
+              value_type: TEXT
+              trigger_prototypes:
+                - uuid: ed9594ed656b4594a38e98b1334bada9
+                  expression: 'last(/KMS and Volume Licenses by Zabbix agent 2/kms.license.state[{#PRODUCTID}])<>"Licensed"'
+                  name: '{#PRODUCTNAME}: license is not activated'
+                  priority: AVERAGE
+          graph_prototypes:
+            - uuid: e516552f88c74900b21c4acbec8fb9b4
+              name: '{#PRODUCTNAME}: KMS activation remaining'
+              yaxismax: '0'
+              graph_items:
+                - color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: 'KMS and Volume Licenses by Zabbix agent 2'
+                    key: 'kms.license.days[{#PRODUCTID}]'
+            - uuid: 991ce5b69ccc4cfd83455124dd0b48fd
+              name: '{#PRODUCTNAME}: license expiration forecast'
+              yaxismax: '0'
+              graph_items:
+                - color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: 'KMS and Volume Licenses by Zabbix agent 2'
+                    key: 'kms.license.days[{#PRODUCTID}]'
+      tags:
+        - tag: class
+          value: license
+        - tag: target
+          value: windows
+      macros:
+        - macro: '{$KMS.LICENSE.CRIT.DAYS}'
+          value: '7'
+          description: 'Critical threshold, in days, for discovered licensing products.'
+        - macro: '{$KMS.LICENSE.NODATA}'
+          value: 12h
+          description: 'No-data threshold for discovered licensing items.'
+        - macro: '{$KMS.LICENSE.WARN.DAYS}'
+          value: '30'
+          description: 'Warning threshold, in days, for discovered licensing products.'
