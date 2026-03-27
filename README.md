@@ -6,6 +6,8 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Maintenance](https://img.shields.io/badge/Maintained-yes-brightgreen)
 
+Russian documentation: [README_RU.md](./README_RU.md).
+
 Monitoring **Windows / Office / Visio / Project** licenses via **Zabbix Agent 2** with automatic product discovery using **LLD (Low-Level Discovery)**.
 
 This project allows centralized monitoring of **KMS / Volume activation expiration** on Windows hosts.
